@@ -29,9 +29,14 @@ Třetí E2E test ověřil nový cyklus: aktuální maximum CO se vynulovalo, ale
 
 ## Co nebylo ověřeno v tomto prostředí
 
-- Docker engine není spuštěn, proto nebyl sestaven a spuštěn kontejner. Dockerfile je připravený; lokálně byly samostatně ověřeny jeho aplikační kroky, migrace a produkční server.
-- GitHub Actions workflow je připravené, ale dosud neběželo na GitHubu.
-- Vzdálený GitHub repozitář a nasazení Railway nebyly vytvořeny: není zadaný cílový repozitář ani dostupná Railway služba. Není tvrzena veřejná funkční adresa.
 - Fyzické telefony Android/iOS, skutečný zvuk, tichý režim, telefonní hovory, instalace PWA a chování konkrétních mobilních prohlížečů vyžadují terénní kontrolu. Chromium testy ověřují interakce a stav aplikace, nikoliv slyšitelnost reproduktoru.
 - Nebyl proveden zátěžový test desítek až stovek zařízení, penetrační audit ani porovnání přístroje vedle skutečného GasAlertu.
 - Nebyly ověřeny aktuální číselné PEL/NPK-P v e-Sbírce; referenční tabulka zůstává prázdná. Přesnost simulovaných rytmů a servisní omezení jsou uvedeny v `ZDROJE.md`.
+
+## Dodatečné ověření GitHub a Railway
+
+[GitHub Actions](https://github.com/martypetrzel-lab/GasAlertsimulator/actions/runs/38727597085) úspěšně prošlo kompletním během na Linuxu: čistá instalace, migrace PostgreSQL, TypeScript, lint, 24 jednotkových testů, audit, sestavení Docker obrazu a všechny 3 E2E testy proti spuštěnému kontejneru. Lokální Docker engine k tomu nebyl potřeba.
+
+Railway úspěšně sestavilo tentýž zdroj a spustilo kontejner, provedlo migrace do vlastní PostgreSQL a založilo produkční instruktorský účet. Veřejná adresa je https://gasalertsimulator-production.up.railway.app, healthcheck databáze vrací HTTP 200. Přihlašovací cookie má příznaky Secure a HttpOnly. Konkrétní prostředí popisuje `NASAZENI.md`.
+
+Samostatné ověření přes tuto veřejnou doménu prošlo přihlášením a vytvořením cvičení z UI, připojením dvou oddělených mobilních kontextů, aktivací detektorů, WSS spojením, růstem CO 0 → 150 ppm za skutečných 60 s, LOW, zvýšením na 250 ppm a HIGH, výpadkem jednoho klienta a automatickým návratem, resetem prostředí, nezávislým potvrzením, ukončením i kontrolou uložené historie. Pomocné cvičení bylo po kontrole odstraněno. Nešlo pouze o test místního serveru nebo úvodní stránky.

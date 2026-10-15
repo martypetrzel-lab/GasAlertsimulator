@@ -2,6 +2,8 @@
 
 Funkční výcviková aplikace pro společné prostředí a více mobilních detektorů. Instruktor nastavuje koncentrace na serveru, hasiči dostávají pouze současné simulované hodnoty a vlastní alarmy. Rozhraní a návody jsou česky.
 
+**Veřejná aplikace:** https://gasalertsimulator-production.up.railway.app · [Produkční konfigurace a přístup](docs/NASAZENI.md)
+
 **SIMULACE – NEMĚŘÍ SKUTEČNÉ PLYNY.** Aplikace není certifikované měřidlo a nenahrazuje skutečný detektor při zásahu.
 
 ## Rychlé místní spuštění
@@ -112,7 +114,7 @@ První dotyk inicializuje Web Audio. Změna alarmu zvuk okamžitě přeruší a 
 6. Pro první účet jednorázově spusťte `npm run account:create` **v prostředí s připojením k produkční DB**, s `INSTRUCTOR_EMAIL` a `INSTRUCTOR_PASSWORD` nastavenými jako tajné proměnné. Příkaz nepřepisuje existující účet. Poté heslo z prostředí odstraňte. Railway private URL není přístupná z běžného lokálního shellu; využijte prostředí služby nebo dočasné zabezpečené spojení k DB.
 7. Ověřte přihlášení, dva fyzické telefony, QR připojení, LOW/HIGH, reconnect, zvuk a historii. Teprve poté nasazení považujte za dokončené. Po restartu musí instruktor pozastavený výcvik vědomě obnovit.
 
-Zdrojový projekt je připraven k propojení. Veřejná adresa Railway ani vzdálený GitHub repozitář se bez dostupného cíle a přístupu nepředstírají. Docker obraz obsahuje buildovací nástroje kvůli migracím a jednorázovému založení účtu; veřejný server je neobsluhuje.
+Projekt je propojen s [GitHubem](https://github.com/martypetrzel-lab/GasAlertsimulator) a nasazen na [Railway](https://gasalertsimulator-production.up.railway.app). Popis konkrétního produkčního prostředí je v `docs/NASAZENI.md`. První účet lze při startu bezpečně založit také z proměnných `BOOTSTRAP_INSTRUCTOR_EMAIL` a `BOOTSTRAP_INSTRUCTOR_PASSWORD_HASH`; existující účet se nepřepíše. Docker obraz obsahuje buildovací nástroje kvůli migracím a jednorázovému založení účtu; veřejný server je neobsluhuje.
 
 ## Mapa souborů
 
