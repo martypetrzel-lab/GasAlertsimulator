@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+model Instructor {
+  id String @id @default(cuid())
+  email String @unique
+  passwordHash String
+  createdAt DateTime @default(now())
+  sessions Session[]
+  exercises Exercise[]
+  profiles Profile[]
+  scenarios Scenario[]
+}
+model Session {
+  tokenHash String @id
+  instructorId String
+  instructor Instructor @relation(fields: [instructorId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+}
+model Profile {
+  id String @id @default(cuid())
+  ownerId String
+  owner Instructor @relation(fields: [ownerId], references: [id])
+  name String
+  config Json
+  createdAt DateTime @default(now())
+}
+model Scenario {
+  id String @id @default(cuid())
+  ownerId String
+  owner Instructor @relation(fields: [ownerId], references: [id])
+  name String
+  config Json
+  createdAt DateTime @default(now())
+}
+model Exercise {
+  id String @id @default(cuid())
+  code String @unique
+  name String
+  ownerId String
+  owner Instructor @relation(fields: [ownerId], references: [id])
+  status String @default("ready")
+  state Json
+  createdAt DateTime @default(now())
+  endedAt DateTime?
+  participants Participant[]
+  events Event[]
+  samples Sample[]
+}
+model Participant {
+  id String @id @default(cuid())
+  exerciseId String
+  exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  tokenHash String @unique
+  label String
+  state Json
+  joinedAt DateTime @default(now())
+  lastSeen DateTime @default(now())
+  @@index([exerciseId])
+}
+model Event {
+  id String @id @default(cuid())
+  exerciseId String
+  exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  participantId String?
+  kind String
+  simTime Float
+  payload Json
+  createdAt DateTime @default(now())
+  @@index([exerciseId, createdAt])
+}
+model Sample {
+  id String @id @default(cuid())
+  exerciseId String
+  exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  simTime Float
+  values Json
+  createdAt DateTime @default(now())
+  @@index([exerciseId, simTime])
+}
+model HygieneReference {
+  id String @id @default(cuid())
+  substance String
+  version String
+  pel Float?
+  npkp Float?
+  unit String
+  source String
+  verifiedAt DateTime?
+  note String
+  @@unique([substance, version])
+}

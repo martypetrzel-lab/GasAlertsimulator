@@ -1,0 +1,71 @@
+{
+  "name": "gasalert-training-simulator",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch server/index.ts",
+    "build": "prisma generate && next build --webpack && tsup server/index.ts --format esm --platform node --out-dir dist --external next --external @prisma/client",
+    "start": "node scripts/start.mjs",
+    "typecheck": "next typegen && tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "db:migrate": "prisma migrate deploy",
+    "db:generate": "prisma generate",
+    "account:create": "tsx scripts/create-account.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "6.19.3",
+    "cookie": "^1.0.2",
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0",
+    "lucide-react": "^0.468.0",
+    "next": "16.4.1",
+    "qrcode": "^1.5.4",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@playwright/test": "^1.56.0",
+    "@tailwindcss/postcss": "^4.1.0",
+    "@types/express": "^5.0.0",
+    "@types/node": "^24.0.0",
+    "@types/qrcode": "^1.5.5",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "embedded-postgres": "^17.9.0-beta.17",
+    "eslint": "^9.38.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10",
+    "prisma": "6.19.3",
+    "tailwindcss": "^4.1.0",
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0",
+    "typescript-eslint": "^8.71.2",
+    "vitest": "^5.0.4"
+  },
+  "engines": {
+    "node": ">=22.12"
+  },
+  "type": "module",
+  "overrides": {
+    "deepmerge-ts": "^8.0.0",
+    "esbuild": "^0.28.2"
+  },
+  "allowScripts": {
+    "@prisma/client@6.19.3": true,
+    "prisma@6.19.3": true,
+    "@prisma/engines@6.19.3": true,
+    "esbuild@0.27.7": true,
+    "esbuild@0.28.2": true,
+    "unrs-resolver@1.12.2": true,
+    "embedded-postgres@17.9.0-beta.17": true,
+    "@embedded-postgres/windows-x64@17.9.0-beta.17": true
+  }
+}
