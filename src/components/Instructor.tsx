@@ -1269,7 +1269,16 @@ function ProfileEditor({ onSaved }: { onSaved: () => Promise<void> }) {
 function ScenarioLibrary() {
   const [items, setItems] = useState<ScenarioConfig[]>(scenarios),
     [s, setS] = useState<ScenarioConfig>(structuredClone(scenarios[1])),
-    [msg, setMsg] = useState("");
+    [msg, setMsg] = useState(""),
+    [query, setQuery] = useState("");
+  const normalize = (value: string) =>
+    value
+      .normalize("NFD")
+      .replace(/\p{Diacritic}/gu, "")
+      .toLocaleLowerCase("cs-CZ");
+  const filtered = items.filter((item) =>
+    normalize(`${item.name} ${item.description}`).includes(normalize(query)),
+  );
   const load = () =>
     api<{ defaults: ScenarioConfig[]; saved: Saved<ScenarioConfig>[] }>(
       "/scenarios",
@@ -1285,11 +1294,33 @@ function ScenarioLibrary() {
           <h1>
             Knihovna scénářů<span className="accent">.</span>
           </h1>
-          <p>Upravitelné výcvikové průběhy společného prostředí.</p>
+          <p>
+            {scenarios.length} přednastavených scénářů a vaše vlastní výcvikové
+            průběhy.
+          </p>
         </div>
       </div>
+      <div className="scenario-search">
+        <label>
+          Hledat scénář
+          <input
+            type="search"
+            placeholder="Např. garáž, kyslík, odvětrání…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </label>
+        <span className="muted" role="status">
+          {filtered.length} z {items.length} scénářů
+        </span>
+      </div>
+      {!filtered.length && (
+        <p className="notice">
+          Žádný scénář neodpovídá hledání. Zkuste jiné slovo.
+        </p>
+      )}
       <div className="scenario-library">
-        {items.map((item, i) => (
+        {filtered.map((item, i) => (
           <button
             className="panel scenario-tile"
             key={i}

@@ -10,6 +10,7 @@ import {
 import Brand from "./Brand";
 import { api, useRealtime } from "@/lib/client";
 import { AlarmAudio } from "@/lib/audio";
+import { AlarmVibration } from "@/lib/vibration";
 import { DetectorSnapshot, Gas, gasInfo } from "@/lib/domain";
 export default function Detector() {
   const [code, setCode] = useState(""),
@@ -125,9 +126,13 @@ function Device({ token, onLeave }: { token: string; onLeave: () => void }) {
       "live",
     ),
     [audioIssue, setAudioIssue] = useState(false),
+    [vibrationAvailable, setVibrationAvailable] = useState(false),
+    [vibrationEnabled, setVibrationEnabled] = useState(true),
+    [vibrationBlocked, setVibrationBlocked] = useState(false),
     [message, setMessage] = useState(""),
     [countdown, setCountdown] = useState<number | null>(null);
   const audio = useRef<AlarmAudio | null>(null),
+    vibration = useRef<AlarmVibration | null>(null),
     hold = useRef<ReturnType<typeof setTimeout> | null>(null),
     held = useRef(false),
     lastClick = useRef(0),
@@ -140,8 +145,11 @@ function Device({ token, onLeave }: { token: string; onLeave: () => void }) {
     );
   useEffect(() => {
     audio.current = new AlarmAudio();
+    vibration.current = new AlarmVibration();
+    setVibrationAvailable(vibration.current.supported);
     return () => {
       audio.current?.stop();
+      vibration.current?.stop();
       sequence.current.forEach(clearTimeout);
       if (hold.current) clearTimeout(hold.current);
       void wake.current?.release();
@@ -152,6 +160,7 @@ function Device({ token, onLeave }: { token: string; onLeave: () => void }) {
       setVisible(!document.hidden);
       if (document.hidden) {
         audio.current?.stop();
+        vibration.current?.stop();
         setActivated(false);
       }
       void send("detector:action", {
@@ -173,13 +182,27 @@ function Device({ token, onLeave }: { token: string; onLeave: () => void }) {
       s.alarms,
       activated && connected && visible && s.active && s.status !== "ended",
     );
-  }, [s, activated, connected, visible]);
+    vibration.current?.update(
+      s.alarms,
+      vibrationEnabled &&
+        activated &&
+        connected &&
+        visible &&
+        s.active &&
+        s.status !== "ended",
+    );
+  }, [s, activated, connected, visible, vibrationEnabled]);
   useEffect(() => {
-    if (!connected) audio.current?.stop();
+    if (!connected) {
+      audio.current?.stop();
+      vibration.current?.stop();
+    }
   }, [connected]);
   async function activate() {
     setMessage("");
     try {
+      if (vibrationEnabled && vibration.current?.supported)
+        setVibrationBlocked(!vibration.current.activate());
       await audio.current?.activate();
       await send("detector:action", { action: "activate" });
       await send("detector:action", { action: "foreground", visible: true });
@@ -193,6 +216,7 @@ function Device({ token, onLeave }: { token: string; onLeave: () => void }) {
           /* Prohlížeč může Wake Lock odmítnout. */
         }
     } catch (e) {
+      vibration.current?.stop();
       setMessage((e as Error).message);
     }
   }
@@ -228,6 +252,7 @@ function Device({ token, onLeave }: { token: string; onLeave: () => void }) {
       setCountdown(null);
       void action("deactivate");
       audio.current?.stop();
+      vibration.current?.stop();
       setActivated(false);
     }, 3000);
   }
@@ -245,10 +270,36 @@ function Device({ token, onLeave }: { token: string; onLeave: () => void }) {
         <span className="eyebrow">VÝCVIKOVÝ DETEKTOR X3</span>
         <h1>Aktivovat detektor</h1>
         <p>
-          Dotyk spustí simulaci a povolí zvuk.
+          Dotyk spustí simulaci a připraví zvuk i zvolené vibrace.
           <br />
           Telefon ponechte odemčený a aplikaci v popředí.
         </p>
+        <label className="checkbox-label vibration-option">
+          <input
+            type="checkbox"
+            checked={vibrationEnabled && vibrationAvailable}
+            disabled={!vibrationAvailable}
+            onChange={(e) => setVibrationEnabled(e.target.checked)}
+          />
+          Vibrace při alarmu
+        </label>
+        {!vibrationAvailable && (
+          <small>
+            Tento prohlížeč vibrace neposkytuje. Zvuk a LED zůstávají dostupné.
+          </small>
+        )}
+        {vibrationAvailable && (
+          <button
+            type="button"
+            className="text-link"
+            onClick={() => setVibrationBlocked(!vibration.current!.activate())}
+          >
+            Vyzkoušet vibrace
+          </button>
+        )}
+        {vibrationBlocked && (
+          <small>Telefon vibrace nepovolil. Zkontrolujte jeho nastavení.</small>
+        )}
         <button
           className="primary"
           disabled={unavailable}
@@ -262,7 +313,9 @@ function Device({ token, onLeave }: { token: string; onLeave: () => void }) {
             {message || error}
           </p>
         )}
-        <small>Tichý režim a nastavení telefonu mohou zvuk omezit.</small>
+        <small>
+          Tichý režim a nastavení telefonu mohou zvuk i vibrace omezit.
+        </small>
         <div className="activation-warning">
           SIMULACE – NEMĚŘÍ SKUTEČNÉ PLYNY
         </div>

@@ -24,8 +24,8 @@ Rozsahy 0–500 ppm CO, 0–100 ppm H₂S, 0–30 % obj. O₂ a 0–100 % LEL od
 
 ## Aproximace a nezahrnuté funkce
 
-Kreslené průmyslové tělo a LCD jsou vlastní CSS, bez loga a převzatých grafických aktiv. Jsou inspirované přístrojem, nejde o přesnou kopii rozměrů a segmentů. Číslice se obnovují přibližně každou sekundu.
+Kreslené průmyslové tělo a LCD jsou vlastní CSS, bez loga a převzatých grafických aktiv. Jsou inspirované přístrojem, nejde o přesnou kopii rozměrů a segmentů. Číslice se obnovují přibližně každou sekundu. Vibrace používají výcvikové rytmy přes Vibration API, bez tvrzení o přesném rytmu originálu; podpora závisí na prohlížeči, motoru a nastavení telefonu.
 
-Akustické frekvence, rychlé/pomalé rytmy, střídání multigas, doba podsvícení, délka podržení C a časy sekvence displejů jsou výcvikové aproximace. Nízká baterie má zjednodušenou signalizaci, neimplementuje celou 15minutovou a vypínací sekvenci. Prah 10 % je zvolen pro výcvik. Závada senzoru trvá do odvolání instruktorem; kompletní servisní režimy, kalibrace, nárazové testy, skutečná odezva senzorů, nelinearita a vibrace nejsou simulovány. U O₂ se ukládá minimum i maximum, obrazovka MAX zobrazuje maximum; minimum je v exportu.
+Akustické frekvence, rychlé/pomalé rytmy, střídání multigas, doba podsvícení, délka podržení C a časy sekvence displejů jsou výcvikové aproximace. Nízká baterie má zjednodušenou signalizaci, neimplementuje celou 15minutovou a vypínací sekvenci. Prah 10 % je zvolen pro výcvik. Závada senzoru trvá do odvolání instruktorem; kompletní servisní režimy, kalibrace, nárazové testy, skutečná odezva senzorů a nelinearita nejsou simulovány. U O₂ se ukládá minimum i maximum, obrazovka MAX zobrazuje maximum; minimum je v exportu.
 
 Nejsou tvrzeny neověřené přesné frekvence originální sirény ani právní platnost výcvikových hodnot. Před výcvikem s konkrétním zařízením instruktor musí profil porovnat s jeho skutečným nastavením.

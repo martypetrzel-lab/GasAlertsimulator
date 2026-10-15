@@ -102,7 +102,11 @@ Konkrétní výsledky aktuálního ověření jsou v `docs/OVERENI.md`. Docker b
 
 Manifest obsahuje samostatné ikony, standalone zobrazení a identifikaci simulace. Android: instalace přes nabídku prohlížeče; iOS: Sdílet → Přidat na plochu. Vyžaduje HTTPS. Worker uchovává pouze offline chybovou stránku, nikdy API, přihlášení ani naměřené snímky. Zařízení bez spojení nezobrazuje stará čísla jako aktuální: do 4 s bez snímku zobrazí „PORUCHA SPOJENÍ – SIMULACE“ a zastaví zvuk. Socket.IO automaticky zkouší návrat a server vrátí vlastní aktuální historii účastníka.
 
-První dotyk inicializuje Web Audio. Změna alarmu zvuk okamžitě přeruší a zvolí nový rytmus. Tichý režim, hlasitost, audio výstup, telefonní hovor a pravidla iOS/Android mohou zvuk omezit. **Při zamčení telefonu nelze slíbit zvuk ani živé zobrazení.** Návrat z pozadí vyžaduje opětovný aktivační dotyk. Instruktor vidí stav aplikace na pozadí a odpojení. Wake Lock je pouze požadavek a prohlížeč jej smí odmítnout. Vibrace nejsou implementovány. Instalace a fyzický zvuk na konkrétních telefonech dosud musí projít terénní kontrolou.
+První dotyk inicializuje Web Audio. Změna alarmu zvuk okamžitě přeruší a zvolí nový rytmus. Před aktivací lze zapnout/vypnout a vyzkoušet vibrace. Na podporovaných telefonech se při alarmu opakují pomalé, rychlé nebo kombinované výcvikové vibrace; potvrzení zvuku LOW je nevypne. Při ztrátě spojení, odchodu na pozadí, vypnutí nebo ukončení cvičení se zastaví. Prohlížeč bez Vibration API nabídne zvuk a LED, bez nefunkčního přepínače. Dostupnost API ještě nepotvrzuje přítomnost vibračního motoru; ověřte jej tlačítkem „Vyzkoušet vibrace“.
+
+Tichý režim, hlasitost, audio výstup, telefonní hovor a pravidla iOS/Android mohou zvuk i vibrace omezit. **Při zamčení telefonu nelze slíbit zvuk, vibrace ani živé zobrazení.** Návrat z pozadí vyžaduje opětovný aktivační dotyk. Instruktor vidí stav aplikace na pozadí a odpojení. Wake Lock je pouze požadavek a prohlížeč jej smí odmítnout. Instalace, skutečný zvuk a hmatová odezva na konkrétních telefonech musí projít terénní kontrolou. [Dokumentace Vibration API](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/vibrate).
+
+Knihovna nově obsahuje **19 scénářů** včetně garáže, agregátu, šachty, ČOV, obohaceného kyslíku, pomalého/rychlého úniku, odvětrání a nadrozsahu. Podrobný seznam je v [docs/SCENARE.md](docs/SCENARE.md).
 
 ## Railway a GitHub
 
@@ -123,9 +127,10 @@ Projekt je propojen s [GitHubem](https://github.com/martypetrzel-lab/GasAlertsim
 | `src/app/` | Stránky App Routeru, globální responzivní vzhled |
 | `src/components/Instructor.tsx` | Přihlášení, cvičení, prostředí, profily, scénáře, historie, reference |
 | `src/components/Detector.tsx` | Aktivace, LCD, LED, C a stav spojení |
-| `src/lib/domain.ts` | Typy, jednotky, ukázkový profil a sedm scénářů |
+| `src/lib/domain.ts` | Typy, jednotky, ukázkový profil a 19 scénářů |
 | `src/lib/engine.ts` | Alarmy, integrace expozice a rampy |
 | `src/lib/audio.ts` | Přerušitelná zvuková signalizace |
+| `src/lib/vibration.ts` | Opakované vibrace podle alarmu, zrušení při neaktivním detektoru |
 | `src/lib/client.ts` | API, heartbeat a opětovné připojení |
 | `server/` | API, autentizace, databáze a autoritativní runtime |
 | `prisma/` | Databázové schéma a počáteční migrace |

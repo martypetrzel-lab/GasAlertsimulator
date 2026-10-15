@@ -8,6 +8,8 @@ const base = process.env.E2E_URL || "http://localhost:3000";
 const email = `e2e-${randomBytes(8).toString("hex")}@example.test`,
   password = randomBytes(20).toString("hex");
 let ownerId = "";
+type VibrationWindow = Window &
+  typeof globalThis & { __vibrations: (number | number[])[] };
 test.beforeAll(async () => {
   ownerId = (
     await db.instructor.create({
@@ -60,6 +62,17 @@ test("instruktor, dva detektory, alarmy, reconnect, reset a historie", async ({
   const page = await instructor.newPage(),
     a = await fire1.newPage(),
     b = await fire2.newPage();
+  await fire1.addInitScript(() => {
+    const state = window as VibrationWindow;
+    state.__vibrations = [];
+    Object.defineProperty(navigator, "vibrate", {
+      configurable: true,
+      value: (pattern: number | number[]) => {
+        state.__vibrations.push(pattern);
+        return true;
+      },
+    });
+  });
   await page.goto("/instruktor");
   await page.getByLabel("E-mail", { exact: true }).fill(email);
   await page.getByLabel("Heslo", { exact: true }).fill(password);
@@ -98,6 +111,15 @@ test("instruktor, dva detektory, alarmy, reconnect, reset a historie", async ({
   await page.goto("/");
   await expect(a.locator(".lcd-status")).toHaveText("LOW", { timeout: 20000 });
   await expect(b.locator(".lcd-status")).toHaveText("LOW");
+  await expect
+    .poll(() =>
+      a.evaluate(() =>
+        (window as VibrationWindow).__vibrations.some(
+          (p) => JSON.stringify(p) === "[250]",
+        ),
+      ),
+    )
+    .toBe(true);
   await expect(a.getByTestId("detector-CO")).toHaveText("150", {
     timeout: 65000,
   });
@@ -109,16 +131,38 @@ test("instruktor, dva detektory, alarmy, reconnect, reset a historie", async ({
     .click();
   await a.getByRole("button", { name: "Tlačítko C", exact: true }).click();
   await expect(a.locator(".lcd-top")).toContainText("♪̸");
+  const vibrationCount = await a.evaluate(
+    () => (window as VibrationWindow).__vibrations.length,
+  );
+  await expect
+    .poll(() =>
+      a.evaluate(() => (window as VibrationWindow).__vibrations.length),
+    )
+    .toBeGreaterThan(vibrationCount);
   await co.getByLabel("CO cílová hodnota", { exact: true }).fill("250");
   await co.getByLabel("CO doba změny", { exact: true }).fill("0");
   await co.getByRole("button", { name: "Nastavit", exact: true }).click();
   await expect(a.locator(".device-body")).toHaveClass(/cadence-fast/);
   await expect(b.locator(".device-body")).toHaveClass(/cadence-fast/);
+  await expect
+    .poll(() =>
+      a.evaluate(() =>
+        (window as VibrationWindow).__vibrations.some(
+          (p) => JSON.stringify(p) === "[140,100,140]",
+        ),
+      ),
+    )
+    .toBe(true);
   await fire1.setOffline(true);
   await expect(a.locator(".lcd-connection")).toContainText("PORUCHA SPOJENÍ", {
     timeout: 15000,
   });
   await expect(a.getByTestId("detector-CO")).toHaveCount(0);
+  await expect
+    .poll(() =>
+      a.evaluate(() => (window as VibrationWindow).__vibrations.at(-1)),
+    )
+    .toBe(0);
   await fire1.setOffline(false);
   await expect(a.getByTestId("detector-CO")).toHaveText("250", {
     timeout: 15000,
@@ -137,6 +181,11 @@ test("instruktor, dva detektory, alarmy, reconnect, reset a historie", async ({
     .click();
   await expect(a.locator(".lcd-connection")).toContainText("CVIČENÍ UKONČENO");
   await expect(b.locator(".lcd-connection")).toContainText("CVIČENÍ UKONČENO");
+  await expect
+    .poll(() =>
+      a.evaluate(() => (window as VibrationWindow).__vibrations.at(-1)),
+    )
+    .toBe(0);
   await page
     .getByRole("button", { name: "Zobrazit historii", exact: true })
     .click();
@@ -331,5 +380,37 @@ test("nový cyklus vymaže vlastní expozici a archivuje předchozí maximum", a
   } finally {
     instructor.disconnect();
     detector.disconnect();
+  }
+});
+
+test("rozšířená knihovna nabízí scénáře a vyhledává bez diakritiky", async ({
+  browser,
+}) => {
+  const ctx = await browser.newContext(),
+    page = await ctx.newPage();
+  try {
+    await page.goto("/instruktor");
+    await page.getByLabel("E-mail", { exact: true }).fill(email);
+    await page.getByLabel("Heslo", { exact: true }).fill(password);
+    await page
+      .getByRole("button", { name: "Přihlásit se", exact: true })
+      .click();
+    await page.getByRole("button", { name: "Scénáře", exact: true }).click();
+    await expect(page.locator(".scenario-tile")).toHaveCount(19);
+    await page.getByLabel("Hledat scénář", { exact: true }).fill("garaz");
+    await expect(page.locator(".scenario-tile")).toHaveCount(1);
+    await page.locator(".scenario-tile").click();
+    await expect(page.getByLabel("Název", { exact: true })).toHaveValue(
+      "CO v podzemní garáži",
+    );
+    await page
+      .getByLabel("Hledat scénář", { exact: true })
+      .fill("neexistujici heslo");
+    await expect(page.locator(".scenario-tile")).toHaveCount(0);
+    await expect(
+      page.getByText("Žádný scénář neodpovídá hledání. Zkuste jiné slovo."),
+    ).toBeVisible();
+  } finally {
+    await ctx.close();
   }
 });

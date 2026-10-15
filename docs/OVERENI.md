@@ -6,8 +6,8 @@ Datum: 15. 10. 2026. Prostředí: Windows, Node.js 24.15.0, skutečná lokální
 |---|---|
 | TypeScript `tsc --noEmit` | Prošlo |
 | ESLint (TypeScript a React Hooks) | Prošlo bez chyb a varování |
-| Jednotkové testy | 24 / 24 prošlo |
-| End-to-end testy proti produkčnímu serveru | 3 / 3 prošlo (celkem přibližně 1,2 minuty) |
+| Jednotkové testy | 30 / 30 prošlo |
+| End-to-end testy proti produkčnímu serveru | 4 / 4 prošlo (celkem přibližně 1,2 minuty) |
 | Produkční build Next a vlastního serveru | Prošlo |
 | Počáteční SQL migrace na PostgreSQL | Prošlo |
 | Prisma validate / migrate status | Platné schéma, migrace aplikována |
@@ -40,3 +40,9 @@ Třetí E2E test ověřil nový cyklus: aktuální maximum CO se vynulovalo, ale
 Railway úspěšně sestavilo tentýž zdroj a spustilo kontejner, provedlo migrace do vlastní PostgreSQL a založilo produkční instruktorský účet. Veřejná adresa je https://gasalertsimulator-production.up.railway.app, healthcheck databáze vrací HTTP 200. Přihlašovací cookie má příznaky Secure a HttpOnly. Konkrétní prostředí popisuje `NASAZENI.md`.
 
 Samostatné ověření přes tuto veřejnou doménu prošlo přihlášením a vytvořením cvičení z UI, připojením dvou oddělených mobilních kontextů, aktivací detektorů, WSS spojením, růstem CO 0 → 150 ppm za skutečných 60 s, LOW, zvýšením na 250 ppm a HIGH, výpadkem jednoho klienta a automatickým návratem, resetem prostředí, nezávislým potvrzením, ukončením i kontrolou uložené historie. Pomocné cvičení bylo po kontrole odstraněno. Nešlo pouze o test místního serveru nebo úvodní stránky.
+
+## Aktualizace vibrací a scénářů
+
+Přidáno 12 scénářů (celkem 19) a vyhledávání bez diakritiky. Nové vibrační rytmy mají samostatný testovatelný modul. Šest testů ověřuje opakování, změnu rytmu, zachování vibrací při potvrzení samotného zvuku LOW, zrušení, odmítnutí API a opětovnou aktivaci. Celkem nyní prošlo 30 jednotkových testů, TypeScript, lint a produkční build.
+
+V E2E testu je Vibration API zaznamenáváno testovacím adaptérem: ověřen pomalý a rychlý rytmus, pokračování po ztlumení LOW a zrušení při odpojení či ukončení. Čtvrtý E2E test ověřuje 19 scénářů, hledání `garaz`, načtení přednastavení do editoru a prázdný výsledek hledání. Všechny 4 E2E testy prošly. Jde o kontrolu volání API; skutečnou hmatovou odezvu je potřeba ověřit na konkrétním telefonu tlačítkem „Vyzkoušet vibrace“.

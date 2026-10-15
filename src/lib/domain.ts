@@ -232,4 +232,100 @@ export const scenarios: ScenarioConfig[] = [
     duration: 0,
     faults: ["CO"],
   },
+  {
+    name: "CO v podzemní garáži",
+    description:
+      "Výcvik: postupný růst CO na 220 ppm za 120 s. Sledujte přechod LOW → HIGH podle zvoleného profilu; název není modelem skutečné garáže.",
+    targets: { ...clean, CO: 220 },
+    duration: 120,
+    faults: [],
+  },
+  {
+    name: "Agregát v uzavřeném prostoru",
+    description:
+      "Výcvik: CO 350 ppm a O₂ 19 % za 180 s. Uměle zvolený souběh toxického plynu a poklesu kyslíku pro multigas alarm.",
+    targets: { ...clean, CO: 350, O2: 19 },
+    duration: 180,
+    faults: [],
+  },
+  {
+    name: "Prostor obohacený kyslíkem",
+    description:
+      "Výcvik: růst O₂ na 25 % obj. za 45 s. Procvičení horní alarmové meze kyslíku bez změny ostatních kanálů.",
+    targets: { ...clean, O2: 25 },
+    duration: 45,
+    faults: [],
+  },
+  {
+    name: "Nebezpečná atmosféra v šachtě",
+    description:
+      "Výcvik: O₂ 16 % a H₂S 30 ppm za 60 s. Kombinovaný alarm při uměle zvoleném poklesu kyslíku a růstu sulfanu.",
+    targets: { ...clean, O2: 16, H2S: 30 },
+    duration: 60,
+    faults: [],
+  },
+  {
+    name: "Atmosféra v prostoru ČOV",
+    description:
+      "Výcvik: H₂S 18 ppm a LEL 18 % za 90 s. Dva různé alarmující kanály; fyzikální vazba koncentrací se nepředpokládá.",
+    targets: { ...clean, H2S: 18, LEL: 18 },
+    duration: 90,
+    faults: [],
+  },
+  {
+    name: "Pomalý únik hořlavého plynu",
+    description:
+      "Výcvik: LEL roste na 15 % během 300 s. Pozvolný přechod přes LOW ukázkového profilu; bez určení konkrétního plynu.",
+    targets: { ...clean, LEL: 15 },
+    duration: 300,
+    faults: [],
+  },
+  {
+    name: "Rychlý únik hořlavého plynu",
+    description:
+      "Výcvik: LEL roste na 60 % během 30 s. Rychlá eskalace alarmu v porovnání s pomalým únikem; nejde o výpočet výbušnosti prostoru.",
+    targets: { ...clean, LEL: 60 },
+    duration: 30,
+    faults: [],
+  },
+  {
+    name: "Simulované odvětrání",
+    description:
+      "Výcvik: z aktuálních hodnot návrat k O₂ 20,9 % a ostatním kanálům 0 za 120 s. Použijte po jiném scénáři; expozice a alarmová paměť zůstávají zachované.",
+    targets: { ...clean },
+    duration: 120,
+    faults: [],
+  },
+  {
+    name: "Dlouhodobá expozice CO – STEL a TWA",
+    description:
+      "Výcvik: náběh CO na 80 ppm za 30 s a následné udržování. Expozici nechte dál běžet; STEL/TWA závisí na profilu a délce simulačního času, nikoliv jen na dosažení cíle.",
+    targets: { ...clean, CO: 80 },
+    duration: 30,
+    faults: [],
+  },
+  {
+    name: "Překročení rozsahu CO",
+    description:
+      "Výcvik: CO roste na 650 ppm za 30 s, nad rozsahem 500 ppm se zobrazí OL. Rozlišení číselného alarmu a nadrozsahu.",
+    targets: { ...clean, CO: 650 },
+    duration: 30,
+    faults: [],
+  },
+  {
+    name: "Překročení rozsahu H₂S",
+    description:
+      "Výcvik: H₂S roste na 130 ppm za 30 s, nad rozsahem 100 ppm se zobrazí OL. Hodnoty jsou výhradně simulované.",
+    targets: { ...clean, H2S: 130 },
+    duration: 30,
+    faults: [],
+  },
+  {
+    name: "Porucha senzoru hořlavých plynů",
+    description:
+      "Výcvik: závada kanálu LEL při normálních ostatních hodnotách. Kanál zobrazuje Err; jeho číslo nelze vykládat jako platnou simulovanou koncentraci.",
+    targets: { ...clean },
+    duration: 0,
+    faults: ["LEL"],
+  },
 ];
