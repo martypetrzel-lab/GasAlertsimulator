@@ -30,12 +30,14 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm audit --omit=dev
-      - run: npm run build
+      - run: docker build --tag gasalert:ci .
       - run: npx playwright install --with-deps chromium
       - run: |
-          npm start > server.log 2>&1 &
+          docker run --detach --name gasalert-ci --network host --env DATABASE_URL --env APP_ORIGIN gasalert:ci
           node scripts/wait-for-server.mjs
           npm run test:e2e
+      - run: docker logs gasalert-ci > server.log 2>&1 || true
+        if: failure()
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
